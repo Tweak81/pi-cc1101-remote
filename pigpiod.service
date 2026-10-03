@@ -1,0 +1,12 @@
+[Unit]
+Description=pigpio GPIO daemon (local access only)
+After=network.target
+
+[Service]
+Type=forking
+ExecStart=/usr/local/bin/pigpiod -l
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+

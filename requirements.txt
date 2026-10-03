@@ -1,0 +1,4 @@
+spidev>=3.6
+pigpio>=1.78
+Flask>=3.0,<4
+

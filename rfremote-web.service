@@ -1,0 +1,16 @@
+[Unit]
+Description=CC1101 433 MHz Remote Weboberflaeche
+After=network-online.target pigpiod.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=INSTALL_DIR
+ExecStart=/usr/bin/python3 INSTALL_DIR/webapp.py
+Restart=on-failure
+User=INSTALL_USER
+SupplementaryGroups=spi gpio
+
+[Install]
+WantedBy=multi-user.target
+

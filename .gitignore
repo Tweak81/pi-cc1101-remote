@@ -1,0 +1,14 @@
+__pycache__/
+*.py[cod]
+.monitor.pid
+.monitor.enabled
+.monitor.lock
+monitor.log
+monitor.1.log
+monitor-status.json
+monitor-config.json
+events.jsonl
+events.1.jsonl
+signals/*
+!signals/.gitkeep
+vehicle-signals/*
