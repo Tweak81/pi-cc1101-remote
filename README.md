@@ -43,30 +43,14 @@ Verdrahten den Pi vollständig ausschalten. Leitungen möglichst kurz halten.
 
 Vor dem ersten Start Raspberry Pi OS (64-bit) mit Raspberry Pi Imager auf die
 SD-Karte schreiben und dort zunächst das Heim-WLAN sowie einen Benutzernamen
-einrichten. Der Pi benötigt diese Verbindung einmalig, um Pakete und das private
-GitHub-Repository zu laden. Danach per SSH verbinden.
-
-Für den Zugriff auf das private Repository wird ein fein abgestimmtes GitHub-Token
-mit **Contents: Read-only** benötigt. Token im Terminal verdeckt eingeben. Es wird
-für die Downloads kurz in einer nur für den aktuellen Benutzer lesbaren temporären
-Curl-Konfiguration verwendet und danach gelöscht; dauerhaft bleibt es nicht auf dem Pi:
+einrichten. Der Pi benötigt diese Verbindung einmalig, um Pakete und das öffentliche
+GitHub-Repository zu laden. Danach per SSH verbinden. Ein GitHub-Token ist nicht nötig:
 
 ```sh
-set -o pipefail
-read -s -p "GitHub Token (Contents: Read-only): " GH_TOKEN; printf '\n'
-export GH_TOKEN
-curl_config=$(mktemp)
-chmod 600 "$curl_config"
-printf 'header = "Authorization: Bearer %s"\n' "$GH_TOKEN" > "$curl_config"
-curl --config "$curl_config" -fsSL \
-  -H "Accept: application/vnd.github.raw+json" \
-  "https://api.github.com/repos/Tweak81/pi-cc1101-remote/contents/install-from-github.sh?ref=main" \
-  | GH_TOKEN="$GH_TOKEN" bash
-rm -f "$curl_config"
-unset GH_TOKEN
+curl -fsSL https://raw.githubusercontent.com/Tweak81/pi-cc1101-remote/main/install-from-github.sh | bash
 ```
 
-Der Installer lädt die private Projektversion, installiert Abhängigkeiten und
+Der Installer lädt die Projektversion, installiert Abhängigkeiten und
 richtet den WLAN-Hotspot ein. Er fragt nach SSID und WLAN-Passwort; der Hotspot
 startet danach automatisch. Anschließend den Pi neu starten:
 
@@ -77,6 +61,10 @@ sudo reboot
 Mit dem iPhone das eingerichtete Pi-WLAN auswählen und `http://10.42.0.1:8080`
 öffnen. Die WLAN-Verbindung des Pi zum Heimnetz wird dabei auf `wlan0` durch den
 Hotspot ersetzt. Der Pi muss nur während der Installation online sein.
+
+Das Repository ist öffentlich. Quellcode und Git-Historie können von jedem eingesehen
+und kopiert werden; persönliche Funksignal-Aufnahmen und Laufzeitdaten sind durch
+`.gitignore` vom Repository ausgeschlossen.
 
 ### Manuelle Installation aus einem bereits kopierten Ordner
 

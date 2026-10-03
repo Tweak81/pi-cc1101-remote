@@ -9,33 +9,20 @@ if [ "$(id -u)" -eq 0 ]; then
   echo "Bitte ohne sudo starten; install.sh verwendet sudo gezielt selbst." >&2
   exit 1
 fi
-if [ -z "${GH_TOKEN:-}" ]; then
-  echo "GH_TOKEN fehlt. Für das private Repository ist ein GitHub-Token mit Contents: Read erforderlich." >&2
-  exit 1
-fi
 if ! command -v curl >/dev/null 2>&1 || ! command -v tar >/dev/null 2>&1; then
   echo "curl und tar werden benötigt. Raspberry Pi OS bringt beide normalerweise mit." >&2
   exit 1
 fi
 
 tmp_dir=$(mktemp -d)
-curl_config=$(mktemp)
-chmod 600 "$curl_config"
 cleanup() {
   rm -rf "$tmp_dir"
-  rm -f "$curl_config"
 }
 trap cleanup EXIT INT TERM
 
-# Keep the token out of curl's command-line arguments and remove the temporary
-# config as soon as the download completes.
-printf 'header = "Authorization: Bearer %s"\nheader = "Accept: application/vnd.github+json"\n' \
-  "$GH_TOKEN" > "$curl_config"
-unset GH_TOKEN
 archive="$tmp_dir/project.tar.gz"
-curl --fail --silent --show-error --location --config "$curl_config" \
+curl --fail --silent --show-error --location \
   "https://api.github.com/repos/${REPOSITORY}/tarball/${BRANCH}" --output "$archive"
-rm -f "$curl_config"
 
 mkdir -p "$tmp_dir/project"
 tar -xzf "$archive" --strip-components=1 -C "$tmp_dir/project"
