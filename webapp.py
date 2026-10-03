@@ -84,6 +84,9 @@ def load_vehicle_signals() -> list[dict]:
                 "profile": profile["label"], "protocol": profile["protocol"],
                 "frequency": profile["frequency_label"], "modulation": profile["modulation"],
                 "captured_at": details.get("captured_at", ""),
+                "validation": details.get("validation", "ungeprüfte Altaufnahme"),
+                "validation_score": details.get("validation_score"),
+                "validated_frames": details.get("validated_frames"),
                 "path": path,
             })
     return result

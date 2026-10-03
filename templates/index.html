@@ -122,8 +122,9 @@
       </form>
       <p class="profile-note" id="profile-description">
         Der Fernbedienungsmodus bleibt bei 433,92 MHz OOK und erkennt einfache Festcode-Rahmen.
-        Im Fahrzeugmodus werden empfangene Rohdaten passiv als Flipper-RAW-Dateien abgelegt;
-        die Profile sind nach Herstellerfamilie gruppiert.
+        Im Fahrzeugmodus werden nur mindestens zweimal wiederholte Rahmen gespeichert,
+        deren Timings zum gewählten Fahrzeugprotokoll passen. Der Treffer bleibt eine
+        Wahrscheinlichkeitsbewertung, keine sichere Herkunftsbestätigung.
       </p>
     </div>
     {% if monitoring %}
@@ -155,8 +156,9 @@
           <div class="protocol">{{ signal.protocol }} · {{ signal.frequency }} · {{ signal.modulation }}</div>
           <div class="meta">{{ signal.profile }}{% if signal.captured_at %}<br>{{ signal.captured_at }}{% endif %}</div>
         </div>
-        <span class="badge">passiv</span>
+        <span class="badge">{% if signal.validation_score is not none %}wahrscheinlicher Treffer{% else %}Altaufnahme ungeprüft{% endif %}</span>
       </div>
+      <div class="meta">{{ signal.validation }}{% if signal.validated_frames %} · {{ signal.validated_frames }} passende Wiederholungen{% endif %}</div>
       <a class="download" href="{{ url_for('download_vehicle_signal', profile_id=signal.profile_id, name=signal.name) }}">Flipper-RAW herunterladen</a>
     </article>
     {% endfor %}

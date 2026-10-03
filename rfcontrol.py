@@ -12,6 +12,7 @@ import time
 from pathlib import Path
 
 from profiles import profile_for
+from vehicle_filter import validate_capture
 
 try:
     import pigpio
@@ -384,6 +385,10 @@ def record_vehicle(name: str, seconds: float, profile_id: str, save_debug: bool 
         radio.strobe(radio.SIDLE)
 
         frames = trim_capture(edges, 8_000)
+        try:
+            frames, validation = validate_capture(frames, profile_id)
+        except ValueError as exc:
+            raise SystemExit(str(exc)) from exc
         durations: list[int] = []
         for frame in frames:
             # The Flipper RAW reader requires the first duration to be positive.
@@ -412,6 +417,7 @@ def record_vehicle(name: str, seconds: float, profile_id: str, save_debug: bool 
             "captured_at": time.strftime("%Y-%m-%dT%H:%M:%S%z"),
             "duration_seconds": seconds, "timing_count": len(durations),
             "passive_capture": True,
+            **validation,
         }
         destination.with_suffix(".json").write_text(json.dumps(details, indent=2) + "\n")
         if save_debug:

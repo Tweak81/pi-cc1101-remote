@@ -136,10 +136,18 @@ Honda1 verwendet **433,65 MHz** und eine eigene CC1101-Konfiguration.
 
 Das sind Protokollfamilien und Empfangsvoreinstellungen, keine bestätigte Liste
 kompatibler Fahrzeugmodelle oder Baujahre. Die Auswahl eines Herstellers garantiert
-nicht, dass genau dieses Fahrzeug das Profil verwendet. Das Projekt legt empfangene
-Signal-Timings passiv als Flipper-RAW-`.sub`-Dateien unter `vehicle-signals/<profil>` ab;
-Download-Links erscheinen auf der Seite. Die Profilwahl und die RAW-Aufnahmen bleiben
-nach einem Neustart des Pi erhalten. Die Protokolldekodierung bleibt beim Flipper/ProtoPirate.
+nicht, dass genau dieses Fahrzeug das Profil verwendet. Vor dem Speichern prüft der Pi
+jedes Aufnahmefenster anhand der zum Profil gehörenden Decoder-Timings und Mindestlänge.
+Er verlangt mindestens zwei wiederholte Rahmen mit passender Pulsstruktur; VAG-Rahmen
+müssen zusätzlich mit einer der dokumentierten VAG-Präambeln beginnen. Nicht passende
+Funkpulse werden verworfen. Nur der am besten passende Wiederholungscluster wird als
+Flipper-RAW-`.sub` unter `vehicle-signals/<profil>` gespeichert. Die Weboberfläche
+kennzeichnet diese Daten als wahrscheinlichen Protokolltreffer.
+
+Das ist eine konservative Plausibilitätsprüfung, keine kryptografische Authentifizierung:
+ein anderes Funksystem könnte theoretisch dieselbe Timingstruktur senden. Die Pi-Aufnahme
+beweist daher nicht, dass der Sender tatsächlich ein bestimmtes Fahrzeug ist. Die
+Protokolldekodierung bleibt beim Flipper/ProtoPirate.
 
 Die Profile basieren auf den in ProtoPirate dokumentierten Protokoll-/Frequenzangaben
 und den dazu passenden asynchronen CC1101-Voreinstellungen der Flipper-Firmware. Die
