@@ -34,5 +34,5 @@ sed -e "s|INSTALL_DIR|$install_dir|g" -e "s|INSTALL_USER|$install_user|g" \
   rfremote-web.service > /tmp/rfremote-web.service
 sudo install -m 0644 /tmp/rfremote-web.service /etc/systemd/system/rfremote-web.service
 sudo systemctl daemon-reload
-sudo systemctl enable rfremote-web.service
+sudo systemctl enable --now rfremote-web.service
 echo "Installation abgeschlossen. Bitte den Pi jetzt neu starten: sudo reboot"

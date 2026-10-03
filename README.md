@@ -51,8 +51,9 @@ curl -fsSL https://raw.githubusercontent.com/Tweak81/pi-cc1101-remote/main/insta
 ```
 
 Der Installer lädt die Projektversion, installiert Abhängigkeiten und
-richtet den WLAN-Hotspot ein. Er fragt nach SSID und WLAN-Passwort; der Hotspot
-startet danach automatisch. Anschließend den Pi neu starten:
+richtet den WLAN-Hotspot ein. Er fragt nach SSID und WLAN-Passwort; Webdienst und
+Hotspot starten danach automatisch. Anschließend den Pi neu starten, damit SPI
+vollständig aktiviert wird:
 
 ```sh
 sudo reboot
