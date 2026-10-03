@@ -12,6 +12,7 @@ import time
 from pathlib import Path
 
 from profiles import profile_for
+from flipper_format import raw_sub_text
 from vehicle_filter import validate_capture
 
 try:
@@ -334,23 +335,6 @@ def record(name: str, seconds: float, gap_us: int, save_debug: bool = True) -> N
         pi.stop()
         radio.close()
 
-
-def raw_sub_text(profile: dict, durations: list[int]) -> str:
-    lines = [
-        "Filetype: Flipper SubGhz RAW File",
-        "Version: 1",
-        f"Frequency: {profile['frequency_hz']}",
-        f"Preset: {profile['preset']}",
-    ]
-    if profile.get("custom_preset_data"):
-        lines.extend([
-            "Custom_preset_module: CC1101",
-            f"Custom_preset_data: {profile['custom_preset_data']}",
-        ])
-    lines.append("Protocol: RAW")
-    for offset in range(0, len(durations), 512):
-        lines.append("RAW_Data: " + " ".join(str(value) for value in durations[offset:offset + 512]))
-    return "\n".join(lines) + "\n"
 
 
 def record_vehicle(name: str, seconds: float, profile_id: str, save_debug: bool = False) -> None:

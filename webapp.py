@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import json
+from io import BytesIO
 import os
 import re
 import signal
@@ -17,7 +18,9 @@ from pathlib import Path
 
 from flask import Flask, abort, flash, jsonify, redirect, render_template, request, send_file, url_for
 
-from profiles import REMOTE_PROFILE, VEHICLE_PROFILES, grouped_vehicle_profiles, profile_for
+from flipper_format import raw_sub_text
+from profiles import (REMOTE_PROFILE, VEHICLE_PROFILES, grouped_vehicle_profiles,
+                      profile_for, vehicle_capture_name)
 
 
 BASE = Path(__file__).resolve().parent
@@ -80,7 +83,8 @@ def load_vehicle_signals() -> list[dict]:
             except (OSError, ValueError):
                 details = {}
             result.append({
-                "name": path.stem, "profile_id": profile_id,
+                "name": path.stem, "display_name": vehicle_capture_name(profile, path.stem),
+                "profile_id": profile_id,
                 "profile": profile["label"], "protocol": profile["protocol"],
                 "frequency": profile["frequency_label"], "modulation": profile["modulation"],
                 "captured_at": details.get("captured_at", ""),
@@ -366,6 +370,53 @@ def delete_signal(name: str):
     return redirect(url_for("index"))
 
 
+@app.get("/remote-signal/<name>")
+def download_remote_signal(name: str):
+    if not NAME_RE.fullmatch(name):
+        abort(404)
+    path = SIGNALS / f"{name}.json"
+    if not path.is_file():
+        abort(404)
+    try:
+        data = json.loads(path.read_text())
+        durations = data["durations_us"]
+        if not isinstance(durations, list) or not durations or any(
+                not isinstance(value, int) or isinstance(value, bool) or value == 0
+                for value in durations):
+            raise ValueError("Ungültige Zeitwerte")
+        start = next((i for i, value in enumerate(durations) if value > 0), len(durations))
+        durations = durations[start:]
+        if not durations:
+            raise ValueError("Kein positiver Startimpuls")
+        repeats = max(1, min(30, int(data.get("repeats", 8))))
+        frame = list(durations)
+        if frame[-1] < 0:
+            frame[-1] -= 10_000
+        else:
+            frame.append(-10_000)
+        profile = {**REMOTE_PROFILE, "frequency_hz": int(data.get("frequency_hz", 433_920_000))}
+        exported = raw_sub_text(profile, frame * repeats)
+    except (OSError, ValueError, KeyError, TypeError):
+        abort(422)
+    return send_file(BytesIO(exported.encode("utf-8")), as_attachment=True,
+                     download_name=f"{name}.sub", mimetype="text/plain")
+
+
+@app.post("/vehicle-signal/<profile_id>/<name>/delete")
+def delete_vehicle_signal(profile_id: str, name: str):
+    if profile_id not in VEHICLE_PROFILES or not NAME_RE.fullmatch(name):
+        abort(404)
+    folder = VEHICLE_SIGNALS / profile_id
+    path = folder / f"{name}.sub"
+    if not path.is_file():
+        flash("Signal wurde bereits entfernt.", "error")
+        return redirect(url_for("index"))
+    for suffix in (".sub", ".json", ".edges.json"):
+        (folder / f"{name}{suffix}").unlink(missing_ok=True)
+    flash(f"{vehicle_capture_name(VEHICLE_PROFILES[profile_id], name)} wurde gelöscht.", "success")
+    return redirect(url_for("index"))
+
+
 @app.post("/monitor/start")
 def monitor_start():
     mode = request.form.get("mode", "remote")
@@ -401,7 +452,8 @@ def download_vehicle_signal(profile_id: str, name: str):
     path = VEHICLE_SIGNALS / profile_id / f"{name}.sub"
     if not path.is_file():
         abort(404)
-    return send_file(path, as_attachment=True, download_name=path.name,
+    download_name = vehicle_capture_name(VEHICLE_PROFILES[profile_id], path.stem) + ".sub"
+    return send_file(path, as_attachment=True, download_name=download_name,
                      mimetype="text/plain")
 
 

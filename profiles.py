@@ -4,6 +4,10 @@ Profiles describe protocol families and RF settings. They are not a vehicle
 model/year compatibility database.
 """
 
+import re
+import unicodedata
+
+
 REMOTE_PROFILE = {
     "id": "remote-433-ook",
     "label": "Funkfernbedienungen · 433,92 MHz OOK",
@@ -131,3 +135,14 @@ def grouped_vehicle_profiles() -> list[dict]:
             groups.append(group)
         group["profiles"].append(profile)
     return groups
+
+
+def vehicle_capture_name(profile: dict, name: str) -> str:
+    """Replace a generic vehicle filename with an ASCII profile prefix."""
+    if not name.startswith("vehicle_"):
+        return name
+    protocol = profile["protocol"].split(" · ")[0]
+    label = "VAG" if protocol == "VAG" else f"{profile['make']}_{protocol}"
+    label = unicodedata.normalize("NFKD", label).encode("ascii", "ignore").decode()
+    prefix = re.sub(r"[^A-Za-z0-9]+", "_", label).strip("_")[:28]
+    return f"{prefix}_{name[len('vehicle_'):]}"

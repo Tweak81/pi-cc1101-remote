@@ -170,8 +170,16 @@ Vor einem echten Einsatz muss jedes Profil mit dem betreffenden Funksender auf d
 validiert werden. Die Aufnahmen bleiben Rohdaten; dieser Logger versucht keine
 Rolling-Code-Entschlüsselung und sendet im Fahrzeugmodus nicht.
 
-Gespeicherte Signale lassen sich in ihrer Karte über **Löschen** entfernen. Eine
-Bestätigung verhindert versehentliches Löschen.
+Fahrzeugaufnahmen und Funkfernbedienungssignale lassen sich in ihrer Karte über
+**Löschen** entfernen. Bei Fahrzeugen werden auch die zugehörigen Metadaten und
+Debugdateien entfernt. Eine Bestätigung verhindert versehentliches Löschen.
+
+Beide Aufnahmearten bieten **Flipper-RAW herunterladen**. Der Fernbedienungsdownload
+exportiert die gespeicherten Timings mit Frequenz, OOK-Preset und eingestellter
+Wiederholungszahl als `.sub`; es ist keine weitere Aufnahme nötig. Neue Fahrzeugdateien
+tragen den Profilnamen, beispielsweise `VAG_20261003_153000.sub` oder
+`Kia_V3_V4_20261003_153000.sub`. Ältere `vehicle_…`-Dateien erscheinen ebenfalls mit
+Profilpräfix im Interface und beim Download.
 
 ## Dauerempfang und Protokollerkennung
 

@@ -152,7 +152,7 @@
     {% for signal in vehicle_signals %}
     <article class="signal vehicle-card">
       <div class="signal-top">
-        <div><h2>{{ signal.name }}</h2>
+        <div><h2>{{ signal.display_name }}</h2>
           <div class="protocol">{{ signal.protocol }} · {{ signal.frequency }} · {{ signal.modulation }}</div>
           <div class="meta">{{ signal.profile }}{% if signal.captured_at %}<br>{{ signal.captured_at }}{% endif %}</div>
         </div>
@@ -160,6 +160,10 @@
       </div>
       <div class="meta">{{ signal.validation }}{% if signal.validated_frames %} · {{ signal.validated_frames }} passende Wiederholungen{% endif %}</div>
       <a class="download" href="{{ url_for('download_vehicle_signal', profile_id=signal.profile_id, name=signal.name) }}">Flipper-RAW herunterladen</a>
+      <form method="post" action="{{ url_for('delete_vehicle_signal', profile_id=signal.profile_id, name=signal.name) }}"
+        onsubmit="return confirm('Fahrzeugaufnahme {{ signal.display_name }} wirklich löschen?')">
+        <button class="delete" type="submit">Löschen</button>
+      </form>
     </article>
     {% endfor %}
     </div>
@@ -206,13 +210,15 @@
           <label><input type="checkbox" name="invert" value="1"> Polarität umkehren</label>
         </details>
       </form>
+      {% else %}
+      <p class="profile-note">Senden ist im Fahrzeugmodus deaktiviert.</p>
+      {% endif %}
+      <a class="download" href="{{ url_for('download_remote_signal', name=signal.name) }}">Flipper-RAW herunterladen</a>
       <form method="post" action="{{ url_for('delete_signal', name=signal.name) }}"
         onsubmit="return confirm('Signal {{ signal.name }} wirklich löschen?')">
         <button class="delete" type="submit">Löschen</button>
       </form>
-      {% else %}
-      <p class="profile-note">Senden ist im Fahrzeugmodus deaktiviert.</p>
-      {% endif %}
+
       {% endif %}
     </article>
     {% endfor %}

@@ -12,7 +12,7 @@ import time
 from datetime import datetime, timezone
 from pathlib import Path
 
-from profiles import REMOTE_PROFILE, profile_for
+from profiles import REMOTE_PROFILE, profile_for, vehicle_capture_name
 
 import rfcontrol
 
@@ -211,7 +211,8 @@ def monitor(hours: float, window: float, mode: str = "remote",
             last_heartbeat = time.monotonic()
         stamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         if mode == "vehicle":
-            raw_path = VEHICLE_SIGNALS / profile["id"] / f"vehicle_{stamp}.sub"
+            capture_name = vehicle_capture_name(profile, f"vehicle_{stamp}")
+            raw_path = VEHICLE_SIGNALS / profile["id"] / f"{capture_name}.sub"
             result = subprocess.run(
                 [sys.executable, str(BASE / "rfcontrol.py"), "record-vehicle",
                  raw_path.stem, "--seconds", str(window), "--profile", profile["id"]],
