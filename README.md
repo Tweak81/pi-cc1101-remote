@@ -67,6 +67,16 @@ Das Repository ist öffentlich. Quellcode und Git-Historie können von jedem ein
 und kopiert werden; persönliche Funksignal-Aufnahmen und Laufzeitdaten sind durch
 `.gitignore` vom Repository ausgeschlossen.
 
+### Vorhandene Installation aktualisieren
+
+Der Installer legt eine Snapshot-Kopie ohne Git-Metadaten an. Für spätere
+Code-Updates kannst du deshalb den Update-Helfer ausführen; gespeicherte Signale,
+Empfangseinstellungen und Hotspot-Konfiguration bleiben dabei erhalten:
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/Tweak81/pi-cc1101-remote/main/update-from-github.sh | bash
+```
+
 ### Manuelle Installation aus einem bereits kopierten Ordner
 
 ```sh
